@@ -1,16 +1,15 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Category;
-import com.example.demo.entity.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
 import java.util.List;
 import java.util.Optional;
 
+import com.example.demo.entity.Category;
+import com.example.demo.entity.User;
+import com.example.demo.model.dto.UserDto;
+
 
 public interface UserService {
-    void registerUser(String username, String email, String password);
+    void registerUser(User user);
 
     boolean authenticateUserWithUsername(String username, String password);
 
@@ -18,19 +17,19 @@ public interface UserService {
 
     void changePassword(String username, String newPassword);
 
-    void deleteUser(String username);
+    void deleteUser(Long id);
 
     void updateUser(User user);
 
     Optional<User> getUserByUsername(String username);
 
-    Optional<User> getUserById(Long id);
+    Optional<UserDto> getUserById(Long id);
 
     boolean userExists(String username);
 
     boolean emailExists(String email);
 
-    Iterable<User> getAllUsers();
+    List<User> getAllUsers();
 
     List<Category> getCategoriesByUserId(Long userId);
 }
