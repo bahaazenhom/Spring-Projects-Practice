@@ -9,7 +9,7 @@ import com.example.demo.model.dto.UserDto;
 
 
 public interface UserService {
-    void registerUser(User user);
+    UserDto registerUser(UserDto user);
 
     boolean authenticateUserWithUsername(String username, String password);
 
@@ -17,11 +17,11 @@ public interface UserService {
 
     void changePassword(String username, String newPassword);
 
-    void deleteUser(Long id);
+    UserDto deleteUser(Long id);
 
-    void updateUser(User user);
+    UserDto updateUser(UserDto user);
 
-    Optional<User> getUserByUsername(String username);
+    Optional<UserDto> getUserByUsername(String username);
 
     Optional<UserDto> getUserById(Long id);
 
@@ -29,7 +29,7 @@ public interface UserService {
 
     boolean emailExists(String email);
 
-    List<User> getAllUsers();
+    List<UserDto> getAllUsers();
 
     List<Category> getCategoriesByUserId(Long userId);
 }

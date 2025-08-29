@@ -25,11 +25,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void registerUser(User user) {
+    public UserDto registerUser(UserDto userDto) {
+        User user = new User();
+        user.setUsername(userDto.getUserName());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(userDto.getPassword());
+        user.setRole(userDto.getRole());
         user.setCreatedAt(java.time.Instant.now());
         user.setUpdatedAt(java.time.Instant.now());
-
         userRepository.save(user);
+        return new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
     }
 
     @Override
@@ -49,27 +54,35 @@ public class UserServiceImpl implements UserService {
         user.setPassword(newPassword);
         user.setUpdatedAt(java.time.Instant.now());
         userRepository.save(user);
-
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public UserDto deleteUser(Long id) {
         User user = userRepository.getUserById(id);
         if (user == null) throw new RuntimeException("User with id " + id + " does not exist.");
         userRepository.delete(user);
+        return new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
     }
 
     @Override
-    public void updateUser(User user) {
-        User existingUser = userRepository.getUserById(user.getId());
+    public UserDto updateUser(UserDto userDto) {
+        User user = userRepository.getUserByUsername(userDto.getUserName());
+        if (user == null) throw new RuntimeException("User with username " + userDto.getUserName() + " does not exist.");
+        user.setEmail(userDto.getEmail());
+        user.setPassword(userDto.getPassword());
+        user.setRole(userDto.getRole());
+        user.setCreatedAt(user.getCreatedAt());
         user.setUpdatedAt(java.time.Instant.now());
-        user.setCreatedAt(existingUser.getCreatedAt());
         userRepository.save(user);
+        return new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
     }
 
     @Override
-    public Optional<User> getUserByUsername(String username) {
-        return Optional.ofNullable(userRepository.getUserByUsername(username));
+    public Optional<UserDto> getUserByUsername(String username) {
+        User user = userRepository.getUserByUsername(username);
+        if (user == null) return Optional.empty();
+        UserDto userDto = new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
+        return Optional.of(userDto);
     }
 
 
@@ -93,8 +106,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole()))
+                .toList();
     }
 
 
