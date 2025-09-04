@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class TaskDto {
 
     private Long id;
-    
+
     @NotBlank
     private String title;
 

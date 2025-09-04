@@ -3,6 +3,7 @@ package com.bahaa.todo.service.impl;
 import java.util.List;
 import java.util.Optional;
 
+import com.bahaa.todo.mapper.UserMapper;
 import com.bahaa.todo.model.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,24 +18,22 @@ import com.bahaa.todo.service.UserService;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final UserMapper userMapper;
 
     @Autowired
-    UserServiceImpl(UserRepository userRepository, CategoryRepository categoryRepository) {
+    UserServiceImpl(UserRepository userRepository, CategoryRepository categoryRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.userMapper = userMapper;
     }
 
     @Override
     public UserDto registerUser(UserDto userDto) {
-        User user = new User();
-        user.setUsername(userDto.getUserName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
-        user.setRole(userDto.getRole());
+        User user = userMapper.toUserEntity(userDto);
         user.setCreatedAt(java.time.Instant.now());
         user.setUpdatedAt(java.time.Instant.now());
         userRepository.save(user);
-        return new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
+        return userMapper.toUserDto(user);
     }
 
     @Override
@@ -61,38 +60,31 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getUserById(id);
         if (user == null) throw new RuntimeException("User with id " + id + " does not exist.");
         userRepository.delete(user);
-        return new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
+        return userMapper.toUserDto(user);
     }
 
     @Override
     public UserDto updateUser(UserDto userDto) {
-        User user = userRepository.getUserByUsername(userDto.getUserName());
-        if (user == null) throw new RuntimeException("User with username " + userDto.getUserName() + " does not exist.");
-        user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
-        user.setRole(userDto.getRole());
-        user.setCreatedAt(user.getCreatedAt());
-        user.setUpdatedAt(java.time.Instant.now());
+        User user = userRepository.getUserByUsername(userDto.getUsername());
+        if (user == null) throw new RuntimeException("User with username " + userDto.getUsername() + " does not exist.");
+        userMapper.updateUserFromDto(userDto, user);
         userRepository.save(user);
-        return new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
+        return userMapper.toUserDto(user);
     }
 
     @Override
-    public Optional<UserDto> getUserByUsername(String username) {
+    public UserDto getUserByUsername(String username) {
         User user = userRepository.getUserByUsername(username);
-        if (user == null) return Optional.empty();
-        UserDto userDto = new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
-        return Optional.of(userDto);
+        if (user == null) throw new RuntimeException("User with username " + username + " does not exist.");
+        return userMapper.toUserDto(user);
     }
 
 
     @Override
-    public Optional<UserDto> getUserById(Long id) {
+    public UserDto getUserById(Long id) {
         User user = userRepository.getUserById(id);
-        if (user == null) return Optional.empty();
-        UserDto userDto = new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole());
-
-        return Optional.of(userDto);
+        if (user == null) throw new RuntimeException("User with id " + id + " does not exist.");
+        return userMapper.toUserDto(user);
     }
 
     @Override
@@ -108,7 +100,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> new UserDto(user.getUsername(), user.getEmail(), user.getPassword(), user.getRole()))
+                .map(userMapper::toUserDto)
                 .toList();
     }
 

@@ -14,7 +14,7 @@ import org.hibernate.annotations.ColumnDefault;
 @NoArgsConstructor
 public class UserDto {
     @NotBlank(message = "Username is mandatory")
-    private String userName;
+    private String username;
 
     @Email(message = "Email should be valid from Dto")
     private String email;

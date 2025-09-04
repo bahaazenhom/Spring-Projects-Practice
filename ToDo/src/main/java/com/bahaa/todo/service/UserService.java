@@ -1,7 +1,6 @@
 package com.bahaa.todo.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.bahaa.todo.entity.Category;
 import com.bahaa.todo.model.dto.UserDto;
@@ -20,9 +19,9 @@ public interface UserService {
 
     UserDto updateUser(UserDto user);
 
-    Optional<UserDto> getUserByUsername(String username);
+    UserDto getUserByUsername(String username);
 
-    Optional<UserDto> getUserById(Long id);
+    UserDto getUserById(Long id);
 
     boolean userExists(String username);
 
