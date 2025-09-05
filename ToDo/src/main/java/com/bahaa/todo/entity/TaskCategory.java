@@ -1,10 +1,12 @@
 package com.bahaa.todo.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
+@Data
 @Table(name = "task_categories")
 public class TaskCategory {
     @EmbeddedId
@@ -21,29 +23,5 @@ public class TaskCategory {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-
-    public TaskCategoryId getId() {
-        return id;
-    }
-
-    public void setId(TaskCategoryId id) {
-        this.id = id;
-    }
-
-    public Task getTask() {
-        return task;
-    }
-
-    public void setTask(Task task) {
-        this.task = task;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
 
 }
