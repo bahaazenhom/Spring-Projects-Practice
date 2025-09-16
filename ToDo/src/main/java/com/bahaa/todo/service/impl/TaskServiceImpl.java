@@ -35,7 +35,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskMapper.toTaskEntity(taskDto);
         task.setCreatedAt(java.time.Instant.now());
         task.setUpdatedAt(java.time.Instant.now());
-        task.setUser(userRepository.getUserById(12L));
+        task.setUser(userRepository.getUserById(12L).orElseThrow(()-> new BusinessLogicException("User with id 12 does not exist.")));
         Task savedTask = taskRepository.save(task);
         return taskMapper.toTaskDto(savedTask);
     }

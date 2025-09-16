@@ -42,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto createCategory(CategoryDto categoryDto) {
         Category category = categoryMapper.toCategoryEntity(categoryDto);
-        category.setUser(userRepository.getUserById(12L));
+        category.setUser(userRepository.getUserById(12L).orElseThrow(() -> new RuntimeException("User with id 12 does not exist.")));
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDto(savedCategory);
     }

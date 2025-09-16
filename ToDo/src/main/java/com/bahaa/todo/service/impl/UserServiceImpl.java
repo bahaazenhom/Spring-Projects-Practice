@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.bahaa.todo.mapper.UserMapper;
 import com.bahaa.todo.model.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bahaa.todo.entity.Category;
@@ -19,12 +20,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    UserServiceImpl(UserRepository userRepository, CategoryRepository categoryRepository, UserMapper userMapper) {
+    UserServiceImpl(UserRepository userRepository, CategoryRepository categoryRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -32,6 +35,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUserEntity(userDto);
         user.setCreatedAt(java.time.Instant.now());
         user.setUpdatedAt(java.time.Instant.now());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return userMapper.toUserDto(user);
     }
@@ -48,8 +52,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void changePassword(String username, String newPassword) {
-        User user = userRepository.getUserByUsername(username);
-        if (user == null) throw new RuntimeException("User with username " + username + " does not exist.");
+        User user = userRepository.getUserByUsername(username).
+                orElseThrow(() -> new RuntimeException("User with username " + username + " does not exist."));
         user.setPassword(newPassword);
         user.setUpdatedAt(java.time.Instant.now());
         userRepository.save(user);
@@ -57,7 +61,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto deleteUser(Long id) {
-        User user = userRepository.getUserById(id);
+        User user = userRepository.getUserById(id).
+                orElseThrow(() -> new RuntimeException("User with id " + id + " does not exist."));
         if (user == null) throw new RuntimeException("User with id " + id + " does not exist.");
         userRepository.delete(user);
         return userMapper.toUserDto(user);
@@ -65,8 +70,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto) {
-        User user = userRepository.getUserByUsername(userDto.getUsername());
-        if (user == null) throw new RuntimeException("User with username " + userDto.getUsername() + " does not exist.");
+        User user = userRepository.getUserByUsername(userDto.getUsername()).
+                orElseThrow(() -> new RuntimeException("User with username " + userDto.getUsername() + " does not exist."));
         userMapper.updateUserFromDto(userDto, user);
         userRepository.save(user);
         return userMapper.toUserDto(user);
@@ -74,15 +79,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserByUsername(String username) {
-        User user = userRepository.getUserByUsername(username);
-        if (user == null) throw new RuntimeException("User with username " + username + " does not exist.");
+        User user = userRepository.getUserByUsername(username).
+                orElseThrow(() -> new RuntimeException("User with username " + username + " does not exist."));
         return userMapper.toUserDto(user);
     }
 
 
     @Override
     public UserDto getUserById(Long id) {
-        User user = userRepository.getUserById(id);
+        User user = userRepository.getUserById(id).
+                orElseThrow(() -> new RuntimeException("User with id " + id + " does not exist."));
         if (user == null) throw new RuntimeException("User with id " + id + " does not exist.");
         return userMapper.toUserDto(user);
     }
