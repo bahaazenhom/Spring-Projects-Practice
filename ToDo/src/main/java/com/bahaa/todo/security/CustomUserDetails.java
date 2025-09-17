@@ -1,7 +1,7 @@
 package com.bahaa.todo.security;
 
 import com.bahaa.todo.entity.User;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core    .GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

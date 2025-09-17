@@ -18,8 +18,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,6 +25,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 public class WebSecurityConfig {
     private final UserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
+
     @Autowired
     public WebSecurityConfig(UserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder) {
         this.customUserDetailsService = customUserDetailsService;
@@ -44,41 +43,26 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Session Management
+                .authenticationProvider(authenticationProvider())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
-
-                // Authorization
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
                         .requestMatchers("/", "/home", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll() // registration
-
-                        // Admin endpoints
-                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN") // list all users
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/users").hasRole("ADMIN")
-
-                        // Authenticated users
                         .requestMatchers("/tasks/**").authenticated()
                         .requestMatchers("/categories/**").authenticated()
-
-                        // Everything else
                         .anyRequest().authenticated()
                 )
-
-                // Form Login (you can remove if you only use REST + JWT later)
-                .formLogin(Customizer.withDefaults())
-
-                // Logout
-                .logout(Customizer.withDefaults())
-
-                // CSRF disabled for REST (important for Postman/Angular/React clients)
+                .httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
+
 
     @Bean
     protected SessionRegistry sessionRegistry() {

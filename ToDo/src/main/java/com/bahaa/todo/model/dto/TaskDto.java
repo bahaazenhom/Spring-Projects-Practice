@@ -28,7 +28,7 @@ public class TaskDto {
     @NotBlank
     private String priority;
 
-    @FutureOrPresent
+    @FutureOrPresent(message = "The due date must be in the present or future")
     private LocalDate dueDate;
 
     private Instant createdAt;
