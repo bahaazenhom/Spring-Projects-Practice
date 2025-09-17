@@ -21,12 +21,14 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
     private static final Logger logger = Logger.getLogger(TaskServiceImpl.class.getName());
+    private final CurrentUserService currentUserService;
 
     @Autowired
-    public TaskServiceImpl(TaskRepository taskRepository, TaskMapper taskMapper, UserRepository userRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, TaskMapper taskMapper, UserRepository userRepository, CurrentUserService currentUserService) {
         this.taskRepository = taskRepository;
         this.taskMapper = taskMapper;
         this.userRepository = userRepository;
+        this.currentUserService = currentUserService;
     }
 
 
@@ -35,20 +37,25 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskMapper.toTaskEntity(taskDto);
         task.setCreatedAt(java.time.Instant.now());
         task.setUpdatedAt(java.time.Instant.now());
-        task.setUser(userRepository.getUserById(3L).orElseThrow(()-> new BusinessLogicException("User with id 12 does not exist.")));
+        long userId = currentUserService.getCurrentUserId();
+        task.setUser(userRepository.getUserById(userId)
+                .orElseThrow(()-> new BusinessLogicException("User with does not exist.")));
         Task savedTask = taskRepository.save(task);
         return taskMapper.toTaskDto(savedTask);
     }
 
     @Override
-    public TaskDto getTaskById(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow(()-> new BusinessLogicException("Task with id " + id + " does not exist."));
+    public TaskDto getTaskByIdAndUserId(Long taskId) {
+        long userId = currentUserService.getCurrentUserId();
+        Task task = taskRepository.findByIdAndUserId(taskId, userId).orElseThrow(()-> new BusinessLogicException("Task does not exist."));
         return taskMapper.toTaskDto(task);
     }
 
     @Override
-    public TaskDto updateTask(TaskDto taskDto) {
-        Task task = taskRepository.findById(taskDto.getId()).orElseThrow(() -> new BusinessLogicException("Task with id " + taskDto.getId() + " does not exist."));
+    public TaskDto updateTaskByIdAndUserId(TaskDto taskDto) {
+        long userId = currentUserService.getCurrentUserId();
+        Task task = taskRepository.findByIdAndUserId(taskDto.getId(), userId)
+                .orElseThrow(() -> new BusinessLogicException("Task with id " + taskDto.getId() + " does not exist."));
         taskMapper.updateTaskFromDto(taskDto, task);
         task.setUpdatedAt(java.time.Instant.now());
 
@@ -56,13 +63,16 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void deleteTask(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new BusinessLogicException("Task with id " + id + " does not exist."));
+    public void deleteTaskByIdAndUserId(Long id) {
+        long userId = currentUserService.getCurrentUserId();
+        Task task = taskRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new BusinessLogicException("Task with id " + id + " does not exist."));
         taskRepository.delete(task);
     }
 
     @Override
-    public List<TaskDto> getAllTasksById(Long userId) {
+    public List<TaskDto> getAllTasksByUserId() {
+        long userId = currentUserService.getCurrentUserId();
         List<Task> tasks = taskRepository.findAllByUserId(userId);
         return tasks.stream().map(taskMapper::toTaskDto).toList();
     }

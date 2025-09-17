@@ -35,4 +35,6 @@ public class TaskDto {
 
     private Instant updatedAt;
 
+    private CategoryDto category;
+
 }

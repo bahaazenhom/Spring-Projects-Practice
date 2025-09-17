@@ -12,52 +12,65 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    CategoryRepository categoryRepository;
-    UserRepository userRepository;
-    CategoryMapper categoryMapper;
+    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final CategoryMapper categoryMapper;
+    private final CurrentUserService currentUserService;
 
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, UserRepository userRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, UserRepository userRepository, CurrentUserService currentUserService) {
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.categoryMapper = categoryMapper;
+        this.currentUserService = currentUserService;
 
     }
 
     @Override
-    public List<CategoryDto> findAllByUserId(Long userId) {
+    public List<CategoryDto> findAllByUserId() {
+        long userId = currentUserService.getCurrentUserId();
         List<Category> categories = categoryRepository.findAllByUserId(userId);
-        return categories.stream().map((category) -> categoryMapper.toCategoryDto(category)).toList();
+        return categories.stream().map(categoryMapper::toCategoryDto).toList();
     }
 
     @Override
-    public CategoryDto findById(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category with id " + id + " does not exist."));
+    public CategoryDto findByIdAndUserId(Long categoryId) {
+        long userId = currentUserService.getCurrentUserId();
+        Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
+                .orElseThrow(() -> new RuntimeException("Category does not exist."));
         return categoryMapper.toCategoryDto(category);
     }
 
     @Override
     public CategoryDto createCategory(CategoryDto categoryDto) {
         Category category = categoryMapper.toCategoryEntity(categoryDto);
-        category.setUser(userRepository.getUserById(3L).orElseThrow(() -> new RuntimeException("User with id 12 does not exist.")));
+        long userId = currentUserService.getCurrentUserId();
+        category.setUser(userRepository.getUserById(userId)
+                .orElseThrow(() -> new RuntimeException("User with does not exist.")));
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDto(savedCategory);
     }
 
     @Override
     public CategoryDto updateCategory(CategoryDto categoryDto) {
-        Category category = categoryRepository.findById(categoryDto.getId()).orElseThrow(() -> new RuntimeException("Category with id " + categoryDto.getId() + " does not exist."));
+        long userId = currentUserService.getCurrentUserId();
+        Category category = categoryRepository.findByIdAndUserId(categoryDto.getId(), userId)
+                .orElseThrow(() -> new RuntimeException("Category with does not exist."));
         categoryMapper.updateFromCategoryDto(categoryDto, category);
         Category updatedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDto(updatedCategory);
     }
 
     @Override
-    public void deleteCategory(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category with id " + id + " does not exist."));
+    public void deleteCategory(Long categoryId) {
+        long userId = currentUserService.getCurrentUserId();
+        Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
+                .orElseThrow(() -> new RuntimeException("Category does not exist."));
         categoryRepository.delete(category);
     }
 }

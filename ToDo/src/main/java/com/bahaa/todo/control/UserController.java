@@ -17,7 +17,7 @@ import java.util.List;
 @Validated
 public class UserController {
 
-    UserService userService;
+    private final UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
@@ -29,9 +29,9 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        UserDto user = userService.getUserById(id);
+    @GetMapping("/user")
+    public ResponseEntity<UserDto> getUserById() {
+        UserDto user = userService.getCurrentUser();
         return ResponseEntity.ok(user);
     }
 
@@ -49,7 +49,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        userService.deleteUser();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

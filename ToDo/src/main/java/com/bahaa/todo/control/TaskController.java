@@ -21,14 +21,14 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<TaskDto>> getAllUserTasks(@PathVariable Long userId) {
-        return ResponseEntity.ok(taskService.getAllTasksById(userId));
+    @GetMapping("")
+    public ResponseEntity<List<TaskDto>> getAllUserTasks() {
+        return ResponseEntity.ok(taskService.getAllTasksByUserId());
     }
 
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<TaskDto> getTaskById(@PathVariable Long taskId) {
-        return ResponseEntity.ok(taskService.getTaskById(taskId));
+    public ResponseEntity<TaskDto> getTaskByIdAndUserId(@PathVariable Long taskId) {
+        return ResponseEntity.ok(taskService.getTaskByIdAndUserId(taskId));
     }
 
     @PostMapping()
@@ -36,18 +36,15 @@ public class TaskController {
         return ResponseEntity.ok(taskService.createTask(taskDto));
     }
 
-    @PutMapping("/{taskId}")
-    public ResponseEntity<TaskDto> updateTask(@PathVariable Long taskId, @RequestBody @Valid TaskDto taskDto) {
-        taskDto.setId(taskId);
-        return ResponseEntity.ok(taskService.updateTask(taskDto));
+    @PutMapping("/")
+    public ResponseEntity<TaskDto> updateTaskByIdAndUserId(@RequestBody @Valid TaskDto taskDto) {
+        return ResponseEntity.ok(taskService.updateTaskByIdAndUserId(taskDto));
     }
 
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
-        taskService.deleteTask(taskId);
+    public ResponseEntity<Void> deleteTaskByIdAndUserId(@PathVariable Long taskId) {
+        taskService.deleteTaskByIdAndUserId(taskId);
         return ResponseEntity.noContent().build();
     }
-
-
 
 }

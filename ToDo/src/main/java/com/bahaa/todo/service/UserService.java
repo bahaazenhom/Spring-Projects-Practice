@@ -15,13 +15,13 @@ public interface UserService {
 
     void changePassword(String username, String newPassword);
 
-    UserDto deleteUser(Long id);
+    void deleteUser();
 
     UserDto updateUser(UserDto user);
 
     UserDto getUserByUsername(String username);
 
-    UserDto getUserById(Long id);
+    UserDto getCurrentUser();
 
     boolean userExists(String username);
 
@@ -29,5 +29,5 @@ public interface UserService {
 
     List<UserDto> getAllUsers();
 
-    List<Category> getCategoriesByUserId(Long userId);
+    List<Category> getCategoriesByUserId();
 }

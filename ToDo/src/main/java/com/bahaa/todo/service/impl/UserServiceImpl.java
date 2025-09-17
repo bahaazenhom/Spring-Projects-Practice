@@ -1,7 +1,6 @@
 package com.bahaa.todo.service.impl;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.bahaa.todo.mapper.UserMapper;
 import com.bahaa.todo.model.dto.UserDto;
@@ -21,13 +20,15 @@ public class UserServiceImpl implements UserService {
     private final CategoryRepository categoryRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final CurrentUserService currentUserService;
 
     @Autowired
-    UserServiceImpl(UserRepository userRepository, CategoryRepository categoryRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    UserServiceImpl(UserRepository userRepository, CategoryRepository categoryRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, CurrentUserService currentUserService) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.currentUserService = currentUserService;
     }
 
     @Override
@@ -60,18 +61,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto deleteUser(Long id) {
-        User user = userRepository.getUserById(id).
-                orElseThrow(() -> new RuntimeException("User with id " + id + " does not exist."));
-        if (user == null) throw new RuntimeException("User with id " + id + " does not exist.");
+    public void deleteUser() {
+        long userId = currentUserService.getCurrentUserId();
+        User user = userRepository.getUserById(userId).
+                orElseThrow(() -> new RuntimeException("User does not exist."));
         userRepository.delete(user);
-        return userMapper.toUserDto(user);
     }
 
     @Override
     public UserDto updateUser(UserDto userDto) {
-        User user = userRepository.getUserByUsername(userDto.getUsername()).
-                orElseThrow(() -> new RuntimeException("User with username " + userDto.getUsername() + " does not exist."));
+        long userId = currentUserService.getCurrentUserId();
+        User user = userRepository.getUserById(userId).
+                orElseThrow(() -> new RuntimeException("User does not exist."));
         userMapper.updateUserFromDto(userDto, user);
         userRepository.save(user);
         return userMapper.toUserDto(user);
@@ -86,10 +87,10 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserDto getUserById(Long id) {
-        User user = userRepository.getUserById(id).
-                orElseThrow(() -> new RuntimeException("User with id " + id + " does not exist."));
-        if (user == null) throw new RuntimeException("User with id " + id + " does not exist.");
+    public UserDto getCurrentUser() {
+        long userId = currentUserService.getCurrentUserId();
+        User user = userRepository.getUserById(userId).
+                orElseThrow(() -> new RuntimeException("User does not exist."));
         return userMapper.toUserDto(user);
     }
 
@@ -112,7 +113,8 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public List<Category> getCategoriesByUserId(Long userId) {
+    public List<Category> getCategoriesByUserId() {
+        long userId = currentUserService.getCurrentUserId();
         return categoryRepository.findByUserId(userId);
     }
 }

@@ -26,25 +26,23 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/{userId}")
-    public List<CategoryDto> getCategoriesByUserId(@PathVariable Long userId) {
-        return categoryService.findAllByUserId(userId);
+    @GetMapping("")
+    public List<CategoryDto> getCategoriesByUserId() {
+        return categoryService.findAllByUserId();
     }
 
     @GetMapping("/category/{categoryId}")
-    public CategoryDto getCategoryById(@PathVariable Long categoryId) {
-        return categoryService.findById(categoryId);
+    public CategoryDto getCategoryByIdAndUserId(@PathVariable Long categoryId) {
+        return categoryService.findByIdAndUserId(categoryId);
     }
 
     @PostMapping()
     public CategoryDto createCategory(@RequestBody @Valid CategoryDto categoryDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return categoryService.createCategory(categoryDto);
     }
 
-    @PutMapping("/category/{categoryId}")
-    public CategoryDto updateCategory(@PathVariable Long categoryId, @RequestBody @Valid CategoryDto categoryDto) {
-        categoryDto.setId(categoryId);
+    @PutMapping()
+    public CategoryDto updateCategory(@RequestBody @Valid CategoryDto categoryDto) {
         return categoryService.updateCategory(categoryDto);
     }
 
