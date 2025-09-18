@@ -1,18 +1,16 @@
 package com.bahaa.todo.service.impl;
 
 import com.bahaa.todo.entity.Category;
+import com.bahaa.todo.exception.user.UserNotFoundException;
 import com.bahaa.todo.mapper.CategoryMapper;
 import com.bahaa.todo.model.dto.CategoryDto;
 import com.bahaa.todo.repository.CategoryRepository;
 import com.bahaa.todo.repository.UserRepository;
 import com.bahaa.todo.service.CategoryService;
-import com.bahaa.todo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -51,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryMapper.toCategoryEntity(categoryDto);
         long userId = currentUserService.getCurrentUserId();
         category.setUser(userRepository.getUserById(userId)
-                .orElseThrow(() -> new RuntimeException("User with does not exist.")));
+                .orElseThrow(() -> new UserNotFoundException("User does not exist.")));
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDto(savedCategory);
     }
@@ -60,7 +58,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto updateCategory(CategoryDto categoryDto) {
         long userId = currentUserService.getCurrentUserId();
         Category category = categoryRepository.findByIdAndUserId(categoryDto.getId(), userId)
-                .orElseThrow(() -> new RuntimeException("Category with does not exist."));
+                .orElseThrow(() -> new RuntimeException("Category does not exist."));
         categoryMapper.updateFromCategoryDto(categoryDto, category);
         Category updatedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDto(updatedCategory);

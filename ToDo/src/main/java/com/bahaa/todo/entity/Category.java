@@ -26,6 +26,7 @@ public class Category {
     private User user;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Task> tasks;
 
 

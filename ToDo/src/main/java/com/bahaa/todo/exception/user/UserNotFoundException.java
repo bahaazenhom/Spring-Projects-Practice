@@ -1,4 +1,4 @@
-package com.bahaa.todo.exception;
+package com.bahaa.todo.exception.user;
 
 public class UserNotFoundException extends RuntimeException{
     public UserNotFoundException(String message) {
