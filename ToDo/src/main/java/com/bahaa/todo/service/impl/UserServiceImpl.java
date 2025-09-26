@@ -2,6 +2,7 @@ package com.bahaa.todo.service.impl;
 
 import java.util.List;
 
+import com.bahaa.todo.exception.user.UserNotFoundException;
 import com.bahaa.todo.mapper.UserMapper;
 import com.bahaa.todo.model.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(String username, String newPassword) {
         User user = userRepository.getUserByUsername(username).
-                orElseThrow(() -> new RuntimeException("User with username " + username + " does not exist."));
+                orElseThrow(() -> new UserNotFoundException("User does not exist."));
         user.setPassword(newPassword);
         user.setUpdatedAt(java.time.Instant.now());
         userRepository.save(user);
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser() {
         long userId = currentUserService.getCurrentUserId();
         User user = userRepository.getUserById(userId).
-                orElseThrow(() -> new RuntimeException("User does not exist."));
+                orElseThrow(() -> new UserNotFoundException("User does not exist."));
         userRepository.delete(user);
     }
 
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto) {
         long userId = currentUserService.getCurrentUserId();
         User user = userRepository.getUserById(userId).
-                orElseThrow(() -> new RuntimeException("User does not exist."));
+                orElseThrow(() -> new UserNotFoundException("User does not exist."));
         userMapper.updateUserFromDto(userDto, user);
         userRepository.save(user);
         return userMapper.toUserDto(user);
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserByUsername(String username) {
         User user = userRepository.getUserByUsername(username).
-                orElseThrow(() -> new RuntimeException("User with username " + username + " does not exist."));
+                orElseThrow(() -> new UserNotFoundException("User does not exist."));
         return userMapper.toUserDto(user);
     }
 
@@ -90,7 +91,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getCurrentUser() {
         long userId = currentUserService.getCurrentUserId();
         User user = userRepository.getUserById(userId).
-                orElseThrow(() -> new RuntimeException("User does not exist."));
+                orElseThrow(() -> new UserNotFoundException("User does not exist."));
         return userMapper.toUserDto(user);
     }
 

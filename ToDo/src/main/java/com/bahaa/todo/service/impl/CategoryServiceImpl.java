@@ -1,6 +1,7 @@
 package com.bahaa.todo.service.impl;
 
 import com.bahaa.todo.entity.Category;
+import com.bahaa.todo.exception.category.CategoryNotFoundException;
 import com.bahaa.todo.exception.user.UserNotFoundException;
 import com.bahaa.todo.mapper.CategoryMapper;
 import com.bahaa.todo.model.dto.CategoryDto;
@@ -40,7 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto findByIdAndUserId(Long categoryId) {
         long userId = currentUserService.getCurrentUserId();
         Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
-                .orElseThrow(() -> new RuntimeException("Category does not exist."));
+                .orElseThrow(() -> new CategoryNotFoundException("Category does not exist."));
         return categoryMapper.toCategoryDto(category);
     }
 
@@ -58,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto updateCategory(CategoryDto categoryDto) {
         long userId = currentUserService.getCurrentUserId();
         Category category = categoryRepository.findByIdAndUserId(categoryDto.getId(), userId)
-                .orElseThrow(() -> new RuntimeException("Category does not exist."));
+                .orElseThrow(() -> new CategoryNotFoundException("Category does not exist."));
         categoryMapper.updateFromCategoryDto(categoryDto, category);
         Category updatedCategory = categoryRepository.save(category);
         return categoryMapper.toCategoryDto(updatedCategory);
@@ -68,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Long categoryId) {
         long userId = currentUserService.getCurrentUserId();
         Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
-                .orElseThrow(() -> new RuntimeException("Category does not exist."));
+                .orElseThrow(() -> new CategoryNotFoundException("Category does not exist."));
         categoryRepository.delete(category);
     }
 }

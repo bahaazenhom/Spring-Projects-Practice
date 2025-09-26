@@ -2,6 +2,8 @@ package com.bahaa.todo.service.impl;
 
 import com.bahaa.todo.entity.Task;
 import com.bahaa.todo.exception.BusinessLogicException;
+import com.bahaa.todo.exception.task.TaskNotFoundException;
+import com.bahaa.todo.exception.user.UserNotFoundException;
 import com.bahaa.todo.mapper.TaskMapper;
 import com.bahaa.todo.model.dto.TaskDto;
 import com.bahaa.todo.repository.TaskRepository;
@@ -39,7 +41,7 @@ public class TaskServiceImpl implements TaskService {
         task.setUpdatedAt(java.time.Instant.now());
         long userId = currentUserService.getCurrentUserId();
         task.setUser(userRepository.getUserById(userId)
-                .orElseThrow(()-> new BusinessLogicException("User with does not exist.")));
+                .orElseThrow(()-> new UserNotFoundException("User does not exist.")));
         Task savedTask = taskRepository.save(task);
         return taskMapper.toTaskDto(savedTask);
     }
@@ -47,7 +49,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto getTaskByIdAndUserId(Long taskId) {
         long userId = currentUserService.getCurrentUserId();
-        Task task = taskRepository.findByIdAndUserId(taskId, userId).orElseThrow(()-> new BusinessLogicException("Task does not exist."));
+        Task task = taskRepository.findByIdAndUserId(taskId, userId).orElseThrow(()-> new TaskNotFoundException("Task does not exist."));
         return taskMapper.toTaskDto(task);
     }
 
@@ -55,7 +57,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskDto updateTaskByIdAndUserId(TaskDto taskDto) {
         long userId = currentUserService.getCurrentUserId();
         Task task = taskRepository.findByIdAndUserId(taskDto.getId(), userId)
-                .orElseThrow(() -> new BusinessLogicException("Task with id " + taskDto.getId() + " does not exist."));
+                .orElseThrow(() -> new TaskNotFoundException("Task does not exist."));
         taskMapper.updateTaskFromDto(taskDto, task);
         task.setUpdatedAt(java.time.Instant.now());
 
@@ -66,7 +68,7 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTaskByIdAndUserId(Long id) {
         long userId = currentUserService.getCurrentUserId();
         Task task = taskRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new BusinessLogicException("Task with id " + id + " does not exist."));
+                .orElseThrow(() -> new TaskNotFoundException("Task does not exist."));
         taskRepository.delete(task);
     }
 

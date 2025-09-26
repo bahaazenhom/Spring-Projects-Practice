@@ -2,7 +2,7 @@ package com.bahaa.todo.service.impl;
 
 import com.bahaa.todo.entity.User;
 import com.bahaa.todo.repository.UserRepository;
-import com.bahaa.todo.security.CustomUserDetails;
+import com.bahaa.todo.config.security.CustomUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

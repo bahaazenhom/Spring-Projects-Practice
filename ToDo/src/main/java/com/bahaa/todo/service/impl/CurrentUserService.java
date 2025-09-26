@@ -1,7 +1,9 @@
 package com.bahaa.todo.service.impl;
 
+import com.bahaa.todo.config.security.CustomUserDetails;
 import com.bahaa.todo.exception.NoAuthenticatedUser;
-import com.bahaa.todo.security.CustomUserDetails;
+import com.bahaa.todo.exception.security.AuthenticationFailedException;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,6 @@ public class CurrentUserService {
         if (auth != null && auth.getPrincipal() instanceof CustomUserDetails userDetails) {
             return userDetails.getId();
         }
-        throw new NoAuthenticatedUser("No authenticated user found.");
+        throw new AuthenticationFailedException("No authenticated user found.");
     }
 }

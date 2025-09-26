@@ -1,6 +1,6 @@
 package com.bahaa.todo.exception.security;
 
-public class AuthenticationFailedException extends Exception {
+public class AuthenticationFailedException extends RuntimeException {
     public AuthenticationFailedException(String message) {
         super(message);
     }

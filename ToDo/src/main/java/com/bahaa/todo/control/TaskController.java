@@ -14,6 +14,8 @@ import java.util.List;
 @RequestMapping("/tasks")
 @RestController
 @Validated
+@CrossOrigin(origins = "*")
+
 public class TaskController {
     private final TaskService taskService;
 

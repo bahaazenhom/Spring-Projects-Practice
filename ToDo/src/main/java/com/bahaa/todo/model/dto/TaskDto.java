@@ -31,10 +31,6 @@ public class TaskDto {
     @FutureOrPresent(message = "The due date must be in the present or future")
     private LocalDate dueDate;
 
-    private Instant createdAt;
-
-    private Instant updatedAt;
-
     private CategoryDto category;
 
 }
